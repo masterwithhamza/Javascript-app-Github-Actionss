@@ -1,0 +1,44 @@
+name: Deploye javascript app
+on:
+  push:
+    branches: [ master ]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: build the docker images
+      run: docker build -t javaapp .
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+    - uses: action/checkout@v2
+    - name: Deploy on EC2
+      env:
+          PRIVATE_KEY: ${{ secrets.PRIVATE_KEY  }}
+          HOSTNAME: ${{ secrets.HOSTNAME  }}
+          USER_NAME: ${{ secrets.USER_NAME  }}
+          
+        
+      run: |
+         echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
+          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '   
+            cd /path/to/app
+            git checkout master
+            git fetch --all
+            git reset --hard origin/master
+            git pull origin master
+            
+            # Stop and remove any existing container
+            docker stop myapp || true
+            docker rm myapp || true
+            
+            # Pull the latest Docker image
+            docker pull myapp:${{ github.sha }}
+            
+            # Run the container
+            docker run -d --name myapp -p 80:80 myapp:${{ github.sha }}
+          '    
+  
+     
