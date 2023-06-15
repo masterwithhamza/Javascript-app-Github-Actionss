@@ -24,21 +24,16 @@ jobs:
       run: |
          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
           ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '   
-            cd /path/to/app
+            cd /home/ubuntu/myapp
             git checkout master
             git fetch --all
             git reset --hard origin/master
-            git pull origin master
-            
-            # Stop and remove any existing container
-            docker stop myapp || true
-            docker rm myapp || true
-            
+            git pull origin master     
             # Pull the latest Docker image
-            docker pull myapp:${{ github.sha }}
+            docker pull 
             
             # Run the container
-            docker run -d --name myapp -p 80:80 myapp:${{ github.sha }}
+            docker run -dp 80:80 myapp
           '    
   
      
