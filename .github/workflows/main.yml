@@ -29,6 +29,7 @@ jobs:
             git fetch --all
             git reset --hard origin/master
             git pull origin master     
+            
             # Pull the latest Docker image
             docker pull javaapp
             
